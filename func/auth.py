@@ -17,20 +17,37 @@ def validate(username, password):
     else:
         return user
 
-# def register(name, username, password):
-#     # Get MongoDB connection
-#     db = conn.get_db()
-#     if db is None:
-#         return st.error("Couldn't connect to Database")
-#
-#     salt = os.urandom(32)
-#     user = {
-#         "name": name,
-#         "username": username,
-#         "salt": salt,
-#         "password": hashlib.pbkdf2_hmac('sha256', password.encode('utf-8'), salt, 100000)
-#     }
-#     try:
-#         return db.users.insert_one(user).inserted_id
-#     except:
-#         return st.error('Register fail')
+def get_salted_password(password):
+    # Prepare salt and hashed password
+    salt = os.urandom(32)
+    return [salt, hashlib.pbkdf2_hmac('sha256', password.encode('utf-8'), salt, 100000)]
+
+def register(username, password, name):
+    # Get MongoDB connection
+    db = conn.get_db()
+    if db is None:
+        raise Exception('Could not connect to database')
+
+    # Check duplicate username
+    if db.users.find_one({"username": username}):
+        raise Exception('Username already exists')
+
+    # Prepare user data
+    salt, salted_pass = get_salted_password(password)
+    user = {
+        "name": name,
+        "username": username,
+        "salt": salt,
+        "password": salted_pass
+    }
+
+    # Try insert to database
+    try:
+        inserted_id = db.users.insert_one(user).inserted_id
+        return db.users.find_one({'_id': inserted_id})
+    except:
+        raise Exception('Register fail')
+
+
+def change_password(id, password):
+    pass
