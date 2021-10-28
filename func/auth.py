@@ -5,19 +5,15 @@ import pymongo
 import streamlit as st
 
 def validate(username, password):
-    # Return none if empty
-    if not (username and password):
-        return None
-
     # Get MongoDB connection
     db = conn.get_db()
     if db is None:
-        return st.error("Couldn't connect to Database")
+        raise Exception('Could not connect to database')
 
     # Return user if validate success
     user = db.users.find_one({"username": username})
     if not (user and (user['password'] == hashlib.pbkdf2_hmac('sha256', st.session_state.password.encode('utf-8'), user['salt'], 100000))):
-        return None
+        raise Exception('Incorrect username or password')
     else:
         return user
 
