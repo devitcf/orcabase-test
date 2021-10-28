@@ -1,6 +1,7 @@
 import hashlib
 import datetime
 import func.auth as auth
+import func.download as dl
 import streamlit as st
 
 def init():
@@ -48,6 +49,9 @@ def logout():
     for key in st.session_state.keys():
         del st.session_state[key]
 
+def download():
+    return dl.download(st.session_state.from_date, st.session_state.to_date)
+
 # Init session state
 init()
 st.session_state
@@ -76,7 +80,7 @@ if not st.session_state.login:
     with container.form('login_form', True):
         st.text_input('Username', key='username')
         st.text_input('Password', key='password', type='password')
-        st.form_submit_button('Login', 'login_btn', on_click=login)
+        st.form_submit_button('Login', on_click=login)
 
 # Register form
 if st.session_state.route=='register':
@@ -86,7 +90,7 @@ if st.session_state.route=='register':
         st.text_input('Username', key='username')
         st.text_input('Password', key='password', type='password')
         st.text_input('Nickname', key='name')
-        st.form_submit_button('Register', 'register_btn', on_click=register)
+        st.form_submit_button('Register', on_click=register)
 
 # Change password form
 if st.session_state.route=='change_pass':
@@ -94,7 +98,7 @@ if st.session_state.route=='change_pass':
     container.title('Change password')
     with container.form('change_pass_form', True):
         st.text_input('Password', key='password', type='password')
-        st.form_submit_button('Change', 'change_pass_btn', on_click=change_pass)
+        st.form_submit_button('Change', on_click=change_pass)
 
 # Dashboard
 if st.session_state.route=='dashboard':
@@ -103,6 +107,6 @@ if st.session_state.route=='dashboard':
     from_date = datetime.date(2021, 8, 1)
     to_date = datetime.date(2021, 10, 1)
     with container.form('download_form'):
-        st.date_input('From', key='from', value=from_date, min_value=from_date, max_value=to_date)
-        st.date_input('To', key='to', value=to_date, min_value=from_date, max_value=to_date)
-        st.form_submit_button('Download', 'download_btn')
+        st.date_input('From', key='from_date', value=from_date, min_value=from_date, max_value=to_date)
+        st.date_input('To', key='to_date', value=to_date, min_value=from_date, max_value=to_date)
+        st.form_submit_button('Download', on_click=download)
