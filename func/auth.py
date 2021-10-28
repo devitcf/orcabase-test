@@ -49,5 +49,17 @@ def register(username, password, name):
         raise Exception('Register fail')
 
 
-def change_password(id, password):
-    pass
+def change_password(uid, password):
+    # Get MongoDB connection
+    db = conn.get_db()
+    if db is None:
+        raise Exception('Could not connect to database')
+
+    # Prepare user data
+    salt, salted_pass = get_salted_password(password)
+
+    # Try update to database
+    try:
+        return db.users.update_one({'_id': uid}, {'$set': {'salt': salt, 'password': salted_pass} })
+    except:
+        raise Exception('Register fail')
