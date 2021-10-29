@@ -108,5 +108,5 @@ if st.session_state.route=='dashboard':
     to_date = datetime.date(2021, 10, 1)
     with container.form('download_form'):
         st.date_input('From', key='from_date', value=from_date, min_value=from_date, max_value=to_date)
-        st.date_input('To', key='to_date', value=to_date, min_value=from_date, max_value=to_date)
+        st.date_input('To', key='to_date', value=from_date, min_value=from_date, max_value=to_date)
         st.form_submit_button('Download', on_click=download)
