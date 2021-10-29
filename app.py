@@ -51,7 +51,10 @@ def logout():
 
 def download():
     if st.session_state.from_date and st.session_state.to_date:
-        return dl.download(st.session_state.from_date, st.session_state.to_date)
+        try:
+            return dl.download(st.session_state.from_date, st.session_state.to_date)
+        except Exception as e:
+            return st.error(e)
 
 # Init session state
 init()

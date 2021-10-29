@@ -1,2 +1,4 @@
 .streamlit/secrets.toml
 .idea
+data
+dask-worker-space

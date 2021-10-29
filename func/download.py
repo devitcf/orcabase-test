@@ -18,7 +18,6 @@ def download(from_date, to_date):
     # Get all the file version for the period of time
     params = {'url': traffic_api, 'start': from_date.strftime('%Y%m%d'), 'end': to_date.strftime('%Y%m%d')}
     result = requests.get(list_file_version_api, params=params)
-    print(params)
     print(result.url)
 
     # Raise exception if response code is not 200
@@ -26,24 +25,28 @@ def download(from_date, to_date):
         raise error
 
     timestamps = result.json().get('timestamps')
+    total = result.json().get('version-count')
+
+    count = st.empty()
+    st.session_state.processed = 0
+    count.write('Total: {0}. Processed: {1}'.format(total, st.session_state.processed))
 
     if not os.path.exists('data'):
         os.mkdir('data')
 
-    delayed = [delayed(download_xml)(timestamp) for timestamp in timestamps]
-
-    b = db.from_delayed(delayed)
-#     df = dd.from_delayed(dfs)
-    print(b)
-
-#     dfs = df.to_delayed()
-#     for timestamp in timestamps:
-#         dask.delayed(download_traffic_data_by_timestamp)(timestamp)
-#         expander.write('https://api.data.gov.hk/v1/historical-archive/get-file?url={0}&time={1}'.format(urllib.parse.quote_plus('https://resource.data.one.gov.hk/td/speedmap.xml'), timestamp))
+    for timestamp in timestamps:
+        if download_xml(timestamp) == True:
+            st.session_state.processed += 1
+            count.write('total: {0}, processed: {1}'.format(total, st.session_state.processed))
 
 def download_xml(timestamp):
-    global traffic_api, list_file_version_api, get_file_api, error
-    response = requests.get(get_file_api, params={'url': traffic_api, 'time': timestamp}, stream=True)
-    with open('data/{0}.xml'.format(timestamp), 'wb') as file:
-        file.write(response.content)
-        st.write('Downloading {0}.xml'.format(timestamp))
+    global traffic_api, get_file_api, error
+    path = 'data/{0}.xml'.format(timestamp)
+    if not os.path.exists(path):
+        # Slowly fetching xml....
+        response = requests.get(get_file_api, params={'url': traffic_api, 'time': timestamp})
+        if response.status_code != 200:
+            raise Exception(error)
+        with open(path, 'wb') as file:
+            file.write(response.content)
+    return True
