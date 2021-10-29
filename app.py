@@ -50,11 +50,11 @@ def logout():
         del st.session_state[key]
 
 def download():
-    return dl.download(st.session_state.from_date, st.session_state.to_date)
+    if st.session_state.from_date and st.session_state.to_date:
+        return dl.download(st.session_state.from_date, st.session_state.to_date)
 
 # Init session state
 init()
-st.session_state
 
 # Sidebar
 side_bar = st.sidebar
