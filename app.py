@@ -51,10 +51,13 @@ def logout():
 
 def download():
     if st.session_state.from_date and st.session_state.to_date:
+        if st.session_state.to_date < st.session_state.from_date:
+            return st.error('Please input the correct dates')
         try:
-            return dl.download(st.session_state.from_date, st.session_state.to_date)
+            dl.download(st.session_state.from_date, st.session_state.to_date)
         except Exception as e:
             return st.error(e)
+        st.success('Completed!')
 
 # Init session state
 init()
