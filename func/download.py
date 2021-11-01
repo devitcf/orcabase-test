@@ -3,6 +3,7 @@ import urllib
 import datetime
 import requests
 import streamlit as st
+import func.convert as cv
 import threading
 
 # Define api url and exception
@@ -12,7 +13,6 @@ get_file_api = 'https://api.data.gov.hk/v1/historical-archive/get-file'
 error = Exception('Fetch traffic date fail')
 
 def download(from_date, to_date):
-    global traffic_api, list_file_version_api, get_file_api, error, count
     # Get all the file version for the period of time
     params = {'url': traffic_api, 'start': from_date.strftime('%Y%m%d'), 'end': to_date.strftime('%Y%m%d')}
     result = requests.get(list_file_version_api, params=params)
@@ -22,12 +22,17 @@ def download(from_date, to_date):
     if result.status_code != 200:
         raise error
 
+    # Get dates and version timestamps
+    dates = result.json().get('data-dictionary-dates')
     timestamps = result.json().get('timestamps')
     total = result.json().get('version-count')
 
-    # Create folder if not exist
-    if not os.path.exists('data'):
-        os.mkdir('data')
+    # If file exists in AWS
+    #
+    # return file from AWS
+
+
+    # No file found in AWS, start to download xml data
 
     # Define thread list
     thread_list = []
@@ -37,14 +42,18 @@ def download(from_date, to_date):
     # Prepare a spinner and start the thread
     with st.spinner('Preparing data...'):
         for t in thread_list:
-            print(t.start())
+            t.start()
 
-    # Return when all the threads done
-    return t.join()
-
+        # Wait when all the download threads are done
+        t.join()
+        # Convert the xml to parquet
+        paths = [cv.convert_xml_to_parquet(date) for date in dates]
 
 def download_xml(timestamp):
-    global traffic_api, get_file_api, error
+    # Create folder if not exist
+    if not os.path.exists('data'):
+        os.mkdir('data')
+
     path = 'data/{0}.xml'.format(timestamp)
 
     # if file already exists, do not download
@@ -54,3 +63,6 @@ def download_xml(timestamp):
             raise Exception(error)
         with open(path, 'wb') as file:
             file.write(response.content)
+
+if __name__ == '__main__':
+    download(from_date, to_date)

@@ -5,7 +5,9 @@ import func.download as dl
 import streamlit as st
 
 def init():
+    # Set title
     st.set_page_config('Orca base test')
+    # Set states for login and routing
     if 'login' not in st.session_state:
         st.session_state.login = False
     if 'user' not in st.session_state:
@@ -59,60 +61,61 @@ def download():
             return st.error(e)
         st.success('Completed!')
 
-# Init session state
-init()
+if __name__ == '__main__':
+    # Init session state
+    init()
 
-# Sidebar
-side_bar = st.sidebar
+    # Sidebar
+    side_bar = st.sidebar
 
-# Content
-content = st.empty()
+    # Content
+    content = st.empty()
 
-# Show diff btn if authenticated
-with side_bar.container():
-    if not (st.session_state.login and st.session_state.user):
-        side_bar.button('Login', on_click=router, args=['login'])
-        register_route = side_bar.button('Register', on_click=router, args=['register'])
-    else:
-        st.header('Welcome, {0}!'.format(st.session_state.user.get('name')))
-        side_bar.button('Dashboard', on_click=router, args=['dashboard'])
-        change_pass_route = side_bar.button('Change Password', on_click=router, args=['change_pass'])
-        side_bar.button('Logout', on_click=logout)
+    # Show diff btn if authenticated
+    with side_bar.container():
+        if not (st.session_state.login and st.session_state.user):
+            side_bar.button('Login', on_click=router, args=['login'])
+            register_route = side_bar.button('Register', on_click=router, args=['register'])
+        else:
+            st.header('Welcome, {0}!'.format(st.session_state.user.get('name')))
+            side_bar.button('Dashboard', on_click=router, args=['dashboard'])
+            change_pass_route = side_bar.button('Change Password', on_click=router, args=['change_pass'])
+            side_bar.button('Logout', on_click=logout)
 
-# Login form
-if not st.session_state.login:
-    container = content.container()
-    container.title('Login')
-    with container.form('login_form', True):
-        st.text_input('Username', key='username')
-        st.text_input('Password', key='password', type='password')
-        st.form_submit_button('Login', on_click=login)
+    # Login form
+    if not st.session_state.login:
+        container = content.container()
+        container.title('Login')
+        with container.form('login_form', True):
+            st.text_input('Username', key='username')
+            st.text_input('Password', key='password', type='password')
+            st.form_submit_button('Login', on_click=login)
 
-# Register form
-if st.session_state.route=='register':
-    container = content.container()
-    container.title('Register')
-    with container.form('register_form', True):
-        st.text_input('Username', key='username')
-        st.text_input('Password', key='password', type='password')
-        st.text_input('Nickname', key='name')
-        st.form_submit_button('Register', on_click=register)
+    # Register form
+    if st.session_state.route=='register':
+        container = content.container()
+        container.title('Register')
+        with container.form('register_form', True):
+            st.text_input('Username', key='username')
+            st.text_input('Password', key='password', type='password')
+            st.text_input('Nickname', key='name')
+            st.form_submit_button('Register', on_click=register)
 
-# Change password form
-if st.session_state.route=='change_pass':
-    container = content.container()
-    container.title('Change password')
-    with container.form('change_pass_form', True):
-        st.text_input('Password', key='password', type='password')
-        st.form_submit_button('Change', on_click=change_pass)
+    # Change password form
+    if st.session_state.route=='change_pass':
+        container = content.container()
+        container.title('Change password')
+        with container.form('change_pass_form', True):
+            st.text_input('Password', key='password', type='password')
+            st.form_submit_button('Change', on_click=change_pass)
 
-# Dashboard
-if st.session_state.route=='dashboard':
-    container = content.container()
-    container.title('Download traffic data')
-    from_date = datetime.date(2021, 8, 1)
-    to_date = datetime.date(2021, 10, 1)
-    with container.form('download_form'):
-        st.date_input('From', key='from_date', value=from_date, min_value=from_date, max_value=to_date)
-        st.date_input('To', key='to_date', value=from_date, min_value=from_date, max_value=to_date)
-        st.form_submit_button('Download', on_click=download)
+    # Dashboard
+    if st.session_state.route=='dashboard':
+        container = content.container()
+        container.title('Download traffic data')
+        from_date = datetime.date(2021, 8, 1)
+        to_date = datetime.date(2021, 10, 1)
+        with container.form('download_form'):
+            st.date_input('From', key='from_date', value=from_date, min_value=from_date, max_value=to_date)
+            st.date_input('To', key='to_date', value=from_date, min_value=from_date, max_value=to_date)
+            st.form_submit_button('Download', on_click=download)
