@@ -3,6 +3,7 @@ import urllib
 import datetime
 import requests
 import streamlit as st
+import func.connection as conn
 import func.convert as cv
 import threading
 
@@ -27,10 +28,11 @@ def download(from_date, to_date):
     timestamps = result.json().get('timestamps')
     total = result.json().get('version-count')
 
-    # If file exists in AWS
-    #
-    # return file from AWS
+    # If file exists in AWS, get from AWS
+    s3 = conn.get_aws_s3()
+    st.write(s3.url('orcabase'))
 
+    return
 
     # No file found in AWS, start to download xml data
 
@@ -48,6 +50,14 @@ def download(from_date, to_date):
         t.join()
         # Convert the xml to parquet
         paths = [cv.convert_xml_to_parquet(date) for date in dates]
+
+        # Upload to AWS s3
+        s3 = conn.get_aws_s3()
+        if s3 is not None:
+            s3.ls('/')
+            s3.to_json()
+#             for path in paths:
+#                 s3.put(path, '/')
 
 def download_xml(timestamp):
     # Create folder if not exist

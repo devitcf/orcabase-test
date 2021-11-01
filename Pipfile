@@ -8,6 +8,7 @@ streamlit = "*"
 pymongo = {extras = ["srv"], version = "*"}
 dask = {extras = ["distributed"], version = "*"}
 bokeh = "*"
+s3fs = "*"
 
 [dev-packages]
 
