@@ -41,8 +41,9 @@ def parse_xml(rdd):
     return results
 
 def convert_xml_to_parquet(date):
-    if os.path.exists('output/{0}.parquet'.format(date)):
-        shutil.rmtree('output/{0}.parquet'.format(date))
+    path = 'output/{0}'.format(date)
+    if os.path.exists(path):
+        shutil.rmtree(path)
     # Init builder
     spark = SparkSession.builder.getOrCreate()
     # Define schema
@@ -52,10 +53,8 @@ def convert_xml_to_parquet(date):
     records_rdd = file_rdd.flatMap(parse_xml)
     # Convert RDDs to DataFrame with the pre-defined schema
     df = records_rdd.toDF(schema)
-
-    path = 'output/{0}.parquet'.format(date)
     # Write to parquet
-    df.write.parquet(path)
+    df.repartition(1).write.parquet(path, 'overwrite')
 
     return path
 

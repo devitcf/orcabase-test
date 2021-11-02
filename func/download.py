@@ -29,10 +29,10 @@ def download(from_date, to_date):
     total = result.json().get('version-count')
 
     # If file exists in AWS, get from AWS
-    s3 = conn.get_aws_s3()
-    st.write(s3.url('orcabase'))
+#     s3 = conn.get_aws_s3()
+#     st.write(s3.url('orcabase'))
 
-    return
+#     return
 
     # No file found in AWS, start to download xml data
 
